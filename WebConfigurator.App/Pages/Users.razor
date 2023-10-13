@@ -1,6 +1,23 @@
 ﻿@page "/users"
-<h3>Users</h3>
+
+<MudGrid Justify="Justify.FlexStart">
+    <MudItem xs="12" Class="pb-4">
+        <MudButton Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add">Добавить группу</MudButton>
+        <MudButton Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add">Добавить пользователя</MudButton>
+    </MudItem>
+    <MudItem xs="4">
+        <MudTreeView T="string" Hover="true" @bind-SelectedValue="SelectedValue">
+            <MudTreeViewItem Value="@("Старшие администраторы")">
+                <MudTreeViewItem Value="@("root")"/>
+            </MudTreeViewItem>
+            <MudTreeViewItem Value="@("Администраторы")">
+            </MudTreeViewItem>
+        </MudTreeView>
+    </MudItem>
+    <MudItem xs="8">
+    </MudItem>
+</MudGrid>
 
 @code {
-    
+    string SelectedValue { get; set; }
 }
