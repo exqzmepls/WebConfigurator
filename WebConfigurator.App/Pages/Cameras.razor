@@ -1,6 +1,35 @@
 ﻿@page "/cameras"
-<h3>Cameras</h3>
+
+<MudGrid Justify="Justify.FlexStart">
+    <MudItem xs="12" Class="pb-4">
+        <MudButton Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add">Добавить камеру</MudButton>
+    </MudItem>
+    <MudItem xs="3">
+        <MudList Clickable="true" SelectedItemChanged="Callback">
+            @foreach (var camera in cameras)
+            {
+                <MudListItem Text="@camera" Value="camera" Icon="@Icons.Material.Filled.CameraOutdoor"/>
+            }
+        </MudList>
+    </MudItem>
+    <MudItem xs="9">
+        <MudText>@_text</MudText>
+    </MudItem>
+</MudGrid>
 
 @code {
-    
+    private string _text;
+
+    private List<string> cameras = new List<string>()
+    {
+        "Камера 1",
+        "Камера 2",
+        "Камера 3",
+    };
+
+    private void Callback(MudListItem obj)
+    {
+        _text = obj.Text;
+    }
+
 }
