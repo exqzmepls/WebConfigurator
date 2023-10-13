@@ -1,6 +1,33 @@
 ﻿@page "/servers"
-<h3>Servers</h3>
+
+<MudGrid Justify="Justify.FlexStart">
+    <MudItem xs="12" Class="pb-4">
+        <MudButton Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add">Добавить сервер</MudButton>
+    </MudItem>
+    <MudItem xs="3">
+        <MudList Clickable="true" SelectedItemChanged="Callback">
+            @foreach (var server in servers)
+            {
+                <MudListItem Text="@server" Value="server" Icon="@Icons.Material.Filled.DesktopWindows"/>
+            }
+        </MudList>
+    </MudItem>
+    <MudItem xs="9">
+        <MudText>@_text</MudText>
+    </MudItem>
+</MudGrid>
 
 @code {
-    
+    private string _text;
+
+    private List<string> servers = new List<string>()
+    {
+        "Сервер 1"
+    };
+
+    private void Callback(MudListItem obj)
+    {
+        _text = obj.Text;
+    }
+
 }
