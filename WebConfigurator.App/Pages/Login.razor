@@ -1,6 +1,28 @@
 ﻿@page "/"
-<h3>Login</h3>
+@layout LoginLayout
+
+<MudGrid Justify="Justify.Center">
+    <MudItem xs="10" sm="4">
+        <MudCard>
+            <MudCardContent>
+                <MudTextField Label="Пользователь" InputType="InputType.Text" @bind-Value="model.Username"/>
+                <MudTextField Label="Пароль" Class="mt-3" InputType="InputType.Password" @bind-Value="model.Password"/>
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton Href="cameras" Variant="Variant.Filled" Color="Color.Primary" FullWidth="true">Подключиться</MudButton>
+            </MudCardActions>
+        </MudCard>
+    </MudItem>
+</MudGrid>
 
 @code {
-    
+    LoginForm model = new LoginForm();
+
+    public class LoginForm
+    {
+        public string Username { get; set; }
+
+        public string Password { get; set; }
+    }
+
 }
