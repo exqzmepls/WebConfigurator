@@ -1,19 +1,32 @@
 ﻿@page "/cameras"
+@using WebConfigurator.Clients
+@inject IDialogService DialogService
+@inject WebApiClient Client
 
 <MudGrid Justify="Justify.FlexStart">
     <MudItem xs="12" Class="pb-4">
-        <MudButton Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add">Добавить камеру</MudButton>
+        <MudButton @onclick="OpenDialog" Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add">Добавить камеру</MudButton>
     </MudItem>
     <MudItem xs="3">
         <MudList Clickable="true" SelectedItemChanged="Callback">
-            @foreach (var camera in cameras)
+            @foreach (var camera in _cameras)
             {
-                <MudListItem Text="@camera" Value="camera" Icon="@Icons.Material.Filled.CameraOutdoor"/>
+                <MudListItem Text="@camera.Name" Value="camera" Icon="@Icons.Material.Filled.CameraOutdoor"/>
             }
         </MudList>
     </MudItem>
     <MudItem xs="9">
-        <MudText>@_text</MudText>
+        @if (_selectedCamera is not null)
+        {
+            <MudCard>
+                <MudCardContent>
+                    <MudTextField @bind-Value="_selectedCamera.Name" Label="Название" ReadOnly="true" Variant="Variant.Filled"/>
+                    <MudTextField @bind-Value="_selectedCamera.Url" Label="URL" ReadOnly="true" Variant="Variant.Filled"/>
+                    <MudTextField @bind-Value="_selectedCamera.Model" Label="Модель" ReadOnly="true" Variant="Variant.Filled"/>
+                </MudCardContent>
+            </MudCard>
+        }
+        
     </MudItem>
 </MudGrid>
 
@@ -22,18 +35,39 @@
 </div>
 
 @code {
-    private string _text;
+    private SelectedCamera? _selectedCamera;
 
-    private List<string> cameras = new List<string>()
+    private IReadOnlyCollection<Camera> _cameras;
+
+    protected override async Task OnInitializedAsync()
     {
-        "Камера 1",
-        "Камера 2",
-        "Камера 3",
-    };
+        _cameras = await Client.GetCamerasAsync();
+    }
 
     private void Callback(MudListItem obj)
     {
-        _text = obj.Text;
+        var camera = obj.Value as Camera;
+        _selectedCamera = new SelectedCamera
+        { Name = camera.Name, Url = camera.Url, Model = camera.Model };
     }
 
+    private async Task OpenDialog()
+    {
+        var closeOnEscapeKey = new DialogOptions() { CloseOnEscapeKey = true };
+
+        var dialog = await DialogService.ShowAsync<AddCameraDialog>("Добавить камеру", closeOnEscapeKey);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            _cameras = await Client.GetCamerasAsync();
+        }
+    }
+
+    public class SelectedCamera
+    {
+        public string Name { get; set; }
+        public string Url { get; set; }
+        public string Model { get; set; }
+    }
 }
