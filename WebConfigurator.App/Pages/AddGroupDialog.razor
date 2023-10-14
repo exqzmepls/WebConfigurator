@@ -1,0 +1,33 @@
+﻿@using WebConfigurator.Clients
+@inject WebApiClient Client
+
+<MudDialog>
+    <DialogContent>
+        <MudTextField T="string" Label="Название" @bind-Value="_name"></MudTextField>
+        <MudSelect T="string" Label="Тип группы" @bind-Value="_type" AnchorOrigin="Origin.BottomCenter">
+            <MudSelectItem Value="@("JuniorAdmin")"/>
+            <MudSelectItem Value="@("Operator")"/>
+        </MudSelect>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Отмена</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Добавить</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    string _name;
+    string _type;
+
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; }
+
+    async Task Submit()
+    {
+        var result = await Client.AddGroupAsync(_name, _type);
+
+        MudDialog.Close(DialogResult.Ok(result));
+    }
+
+    void Cancel() => MudDialog.Cancel();
+}

@@ -1,17 +1,24 @@
 ﻿@page "/users"
+@using WebConfigurator.Clients
+@inject IDialogService DialogService
+@inject WebApiClient Client
 
 <MudGrid Justify="Justify.FlexStart">
     <MudItem xs="12" Class="pb-4">
-        <MudButton Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add">Добавить группу</MudButton>
+        <MudButton OnClick="OpenAddGroupDialog" Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add">Добавить группу</MudButton>
         <MudButton Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add">Добавить пользователя</MudButton>
     </MudItem>
     <MudItem xs="4">
         <MudTreeView T="string" Hover="true" @bind-SelectedValue="SelectedValue">
-            <MudTreeViewItem Value="@("Старшие администраторы")">
-                <MudTreeViewItem Value="@("root")"/>
-            </MudTreeViewItem>
-            <MudTreeViewItem Value="@("Администраторы")">
-            </MudTreeViewItem>
+            @foreach (var group in _groups)
+            {
+                <MudTreeViewItem Value="@group.Name">
+                    @foreach (var user in group.Users)
+                    {
+                        <MudTreeViewItem Value="@user"/>
+                    }
+                </MudTreeViewItem>
+            }
         </MudTreeView>
     </MudItem>
     <MudItem xs="8">
@@ -23,4 +30,25 @@
 
 @code {
     string SelectedValue { get; set; }
+
+    private IReadOnlyCollection<Group> _groups = new Group[] { };
+
+    protected override async Task OnInitializedAsync()
+    {
+        _groups = await Client.GetAllGroups();
+    }
+
+    private async Task OpenAddGroupDialog()
+    {
+        var closeOnEscapeKey = new DialogOptions() { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+
+        var dialog = await DialogService.ShowAsync<AddGroupDialog>("Добавить группу", closeOnEscapeKey);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            _groups = await Client.GetAllGroups();
+        }
+    }
+
 }

@@ -60,4 +60,58 @@ public sealed class WebApiClient
         var response = await _httpClient.PostAsJsonAsync($"/configure/channels", new[] { newCamera });
         return response.IsSuccessStatusCode;
     }
+
+    public async Task<IReadOnlyCollection<Group>> GetAllGroups()
+    {
+        var response = await _httpClient.GetFromJsonAsync<IReadOnlyCollection<Group>>("/configure/groups");
+
+        if (response is null)
+        {
+            throw new InvalidOperationException("Error groups");
+        }
+
+        foreach (var group in response)
+        {
+            var users = await _httpClient.GetFromJsonAsync<IReadOnlyCollection<User>>(
+                $"/configure/groups/{group.Id}/users");
+
+            if (users is null)
+            {
+                throw new InvalidOperationException("Error group users");
+            }
+
+            foreach (var user in users)
+            {
+                group.Users.Add(user.Login);
+            }
+        }
+
+        return response;
+    }
+    
+    public async Task<bool> AddGroupAsync(string name, string type)
+    {
+        var newGroup = new
+        {
+            Name = name,
+            ConfiguringType = type
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"/configure/groups", new[] { newGroup });
+        return response.IsSuccessStatusCode;
+    }
+}
+
+public class User
+{
+    public string Login { get; set; }
+}
+
+public class Group
+{
+    public Guid Id { get; set; }
+
+    public string Name { get; set; }
+
+    public List<string> Users { get; set; } = new List<string>();
 }
