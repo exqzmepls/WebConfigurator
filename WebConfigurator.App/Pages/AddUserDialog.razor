@@ -1,0 +1,44 @@
+﻿@using WebConfigurator.Clients
+@inject WebApiClient Client
+
+<MudDialog>
+    <DialogContent>
+        <MudSelect T="Group" Label="Группа" @bind-Value="_group" AnchorOrigin="Origin.BottomCenter">
+            @foreach (var g in _groups)
+            {
+                <MudSelectItem Value="@g"/>
+            }
+        </MudSelect>
+        <MudTextField T="string" Label="Имя пользователя" @bind-Value="_name"></MudTextField>
+        <MudTextField Label="Пароль" InputType="InputType.Password" @bind-Value="_password"/>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Отмена</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Добавить</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    string _name;
+    private string _password;
+    Group _group;
+
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; }
+
+    private IReadOnlyCollection<Group> _groups = new Group[] { };
+
+    protected override async Task OnInitializedAsync()
+    {
+        _groups = await Client.GetAllGroups();
+    }
+
+    async Task Submit()
+    {
+        var result = await Client.AddUserAsync(_group.Id, _name, _password);
+
+        MudDialog.Close(DialogResult.Ok(result));
+    }
+
+    void Cancel() => MudDialog.Cancel();
+}

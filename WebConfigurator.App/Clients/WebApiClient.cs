@@ -88,7 +88,7 @@ public sealed class WebApiClient
 
         return response;
     }
-    
+
     public async Task<bool> AddGroupAsync(string name, string type)
     {
         var newGroup = new
@@ -98,6 +98,19 @@ public sealed class WebApiClient
         };
 
         var response = await _httpClient.PostAsJsonAsync($"/configure/groups", new[] { newGroup });
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> AddUserAsync(Guid groupId, string login, string password)
+    {
+        var newUser = new
+        {
+            GroupId = groupId,
+            Login = login,
+            NewPassword = password
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"/configure/users", new[] { newUser });
         return response.IsSuccessStatusCode;
     }
 }
@@ -114,4 +127,6 @@ public class Group
     public string Name { get; set; }
 
     public List<string> Users { get; set; } = new List<string>();
+    
+    public override string ToString() => Name;
 }
