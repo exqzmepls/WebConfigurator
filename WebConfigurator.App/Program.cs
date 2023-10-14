@@ -1,3 +1,5 @@
+using System.Net.Http.Headers;
+using System.Text;
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 using MudBlazor.Services;
 using WebConfigurator.Clients;
@@ -13,6 +15,22 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddMudServices();
 builder.Services.AddSingleton<WebApiClient>();
+builder.Services.AddHttpClient<WebApiClient>(httpClient =>
+{
+    const string username = "root";
+    const string password = "";
+    var credentialsBytes = Encoding.ASCII.GetBytes($"{username}:{password}");
+    var base64Credentials = Convert.ToBase64String(credentialsBytes);
+    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", base64Credentials);
+
+    var uriBuilder = new UriBuilder
+    {
+        Host = "192.168.100.140",
+        Port = 8080,
+        Scheme = "http",
+    };
+    httpClient.BaseAddress = uriBuilder.Uri;
+});
 
 var app = builder.Build();
 

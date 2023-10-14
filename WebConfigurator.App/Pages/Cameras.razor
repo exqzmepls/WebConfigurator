@@ -21,8 +21,8 @@
             <MudCard>
                 <MudCardContent>
                     <MudTextField @bind-Value="_selectedCamera.Name" Label="Название" ReadOnly="true" Variant="Variant.Filled"/>
-                    <MudTextField @bind-Value="_selectedCamera.Url" Label="URL" ReadOnly="true" Variant="Variant.Filled"/>
-                    <MudTextField @bind-Value="_selectedCamera.Model" Label="Модель" ReadOnly="true" Variant="Variant.Filled"/>
+                    <MudTextField @bind-Value="_selectedCamera.ConnectionSettings.Hostname" Label="Адрес" ReadOnly="true" Variant="Variant.Filled"/>
+                    <MudTextField @bind-Value="_selectedCamera.ConnectionSettings.Device" Label="Устройство" ReadOnly="true" Variant="Variant.Filled"/>
                 </MudCardContent>
             </MudCard>
         }
@@ -35,25 +35,24 @@
 </div>
 
 @code {
-    private SelectedCamera? _selectedCamera;
+    private Camera? _selectedCamera;
 
-    private IReadOnlyCollection<Camera> _cameras;
+    private IReadOnlyCollection<CameraInfo> _cameras = new CameraInfo[] { };
 
     protected override async Task OnInitializedAsync()
     {
         _cameras = await Client.GetCamerasAsync();
     }
 
-    private void Callback(MudListItem obj)
+    private async Task Callback(MudListItem obj)
     {
-        var camera = obj.Value as Camera;
-        _selectedCamera = new SelectedCamera
-        { Name = camera.Name, Url = camera.Url, Model = camera.Model };
+        var cameraInfo = obj.Value as CameraInfo;
+        _selectedCamera = await Client.GetCameraAsync(cameraInfo.Id);
     }
 
     private async Task OpenDialog()
     {
-        var closeOnEscapeKey = new DialogOptions() { CloseOnEscapeKey = true };
+        var closeOnEscapeKey = new DialogOptions() { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
 
         var dialog = await DialogService.ShowAsync<AddCameraDialog>("Добавить камеру", closeOnEscapeKey);
         var result = await dialog.Result;
@@ -62,12 +61,5 @@
         {
             _cameras = await Client.GetCamerasAsync();
         }
-    }
-
-    public class SelectedCamera
-    {
-        public string Name { get; set; }
-        public string Url { get; set; }
-        public string Model { get; set; }
     }
 }

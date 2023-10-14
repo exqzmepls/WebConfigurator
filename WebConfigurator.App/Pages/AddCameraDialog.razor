@@ -4,9 +4,11 @@
 <MudDialog>
     <DialogContent>
         <MudTextField T="string" Label="Название" @bind-Value="_cameraName"></MudTextField>
+        <MudTextField T="string" Label="Адрес" @bind-Value="_host"></MudTextField>
         <MudSelect T="string" Label="Модель" AnchorOrigin="Origin.BottomCenter">
             <MudSelectItem Value="@("Virtual Camera")"/>
         </MudSelect>
+        <MudTextField T="int" Label="Номер канала" @bind-Value="_channelNum"></MudTextField>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Отмена</MudButton>
@@ -16,15 +18,16 @@
 
 @code {
     string _cameraName;
-    
+    string _host;
+    int _channelNum;
+
     [CascadingParameter]
     MudDialogInstance MudDialog { get; set; }
 
     async Task Submit()
     {
-        var camera = new Camera(_cameraName, "127.0.0.1:9090", "Virtual Camera");
-        var result = await Client.AddCameraAsync(camera);
-        
+        var result = await Client.AddCameraAsync(_cameraName, _host, _channelNum);
+
         MudDialog.Close(DialogResult.Ok(result));
     }
 
